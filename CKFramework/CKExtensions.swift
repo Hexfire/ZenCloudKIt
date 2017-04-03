@@ -19,7 +19,7 @@
  
  CKExtensions.swift
  
- Swift 3 extensions
+ Swift extensions, for inner and outer use.
  
  */
 
@@ -28,48 +28,10 @@ import Foundation
 import CloudKit
 
 
-
-extension CKEntity where Self : NSObject, Self: CKEntityFunctions {
+internal extension CKEntity {
     
-    func saveToCloud() {
-        cloudKitInstance?.iCloudSave(self)
-    }
-    
-    func saveToCloudAndWait() {
-        _ = cloudKitInstance?.saveRecordSync(entity: self, submitBlock: nil, completionHandler: cloudKitInstance.delegate.entityDidSaveToCloudCallback)
-    }
-    
-    func deleteFromCloud() {
-        cloudKitInstance?.iCloudDelete(self)
-    }
-    
-    func saveKeys(_ keys: [String]) {
-        cloudKitInstance?.iCloudSaveKeys(self, keys: keys)
-    }
-    
-    func saveKeysAndWait(_ keys: [String]) {
-        cloudKitInstance?.iCloudSaveKeysAndWait(self, keys: keys)
-    }
-    
-    func updateEntity(fromRemote record: CKRecord) {
-        cloudKitInstance?.updateEntity(self, fromRemote: record)
-    }
-}
-
-
-
-
-extension CKEntity {
-    public static func predicateForId(syncId: String) -> NSPredicate {
-        return NSPredicate(format: "\(Self.securedSyncKey!) = %@", syncId)
-    }
-    
-    public static var securedSyncKey : String! {
-        return Self.self.syncIdKey ?? cloudKitInstance?.syncIdKey
-    }
-    
-    public static var securedChangeDateKey : String! {
-        return Self.self.changeDateKey ?? cloudKitInstance?.changeDateKey
+    internal static var lastSyncKey : String {
+        return CKDefaults.kEntityLastSyncPrefix + (Self.self as! NSObject.Type).className()
     }
     
     internal func getTypeOfProperty (name: String) -> String? {
@@ -106,14 +68,21 @@ extension CKEntity {
         }
         return nil
     }
-    
+
 }
 
 
-extension NSObjectProtocol where Self : CKEntity {
+public extension CKEntity  {
+    public static func predicateForId(syncId: String) -> NSPredicate {
+        return NSPredicate(format: "\(Self.securedSyncKey!) = %@", syncId)
+    }
     
-    internal static var lastSyncKey : String {
-        return CKDefaults.kEntityLastSyncPrefix + (Self.self as! NSObject.Type).className()
+    public static var securedSyncKey : String! {
+        return Self.self.syncIdKey ?? cloudKitInstance?.syncIdKey
+    }
+    
+    public static var securedChangeDateKey : String! {
+        return Self.self.changeDateKey ?? cloudKitInstance?.changeDateKey
     }
     
     
@@ -158,7 +127,6 @@ extension NSObjectProtocol where Self : CKEntity {
         }
         
         cloudKitInstance.syncEntities(allEntitiesOfType: list, forcedSync: forced)
-        //        cloudKitInstance.syncEntities(allEntitiesOfType: cloudKitInstance.delegate.allEntities()! as! [Self])
     }
     
     

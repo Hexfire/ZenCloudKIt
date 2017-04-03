@@ -270,13 +270,12 @@ import CloudKit
         Usage:
             static var referencePlaceholder: CKEntity = B.defaultInstance()
 
- 
         NOTE: reference placeholder is set in the target, not in the source CKEntity class.
  
 */
 
 
-@objc public protocol CKEntity  {
+@objc public protocol CKEntity : NSObjectProtocol  {
     
     @objc static var recordType : String {get}
     @objc static var mappingDictionary: [String : String] {get}

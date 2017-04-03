@@ -484,9 +484,7 @@ internal var syncPending = false
                 
                 
                 for type in self.entities {
-                    if let obj = type as? (NSObjectProtocol & CKEntity).Type {
-                        obj.self.syncEntities()
-                    }
+                    type.syncEntities()
                 }
                 
                 processDeleteQueue()
@@ -781,7 +779,7 @@ internal var syncPending = false
                     
                         if updateLastSyncDate {
                             
-                            let T = (type(of:entity) as! (NSObjectProtocol & CKEntity).Type)
+                            let T = type(of:entity)
                             
                             UserDefaults.standard.set(Date(), forKey: T.lastSyncKey)
                             UserDefaults.standard.synchronize()
@@ -1173,7 +1171,7 @@ internal var syncPending = false
         }
 
         for entity in (specific ?? self.entities) {
-            (entity as! (NSObjectProtocol & CKEntity).Type).syncEntities(forced: forced)
+            entity.syncEntities(forced: forced)
         }
     }
     
@@ -1214,15 +1212,11 @@ internal var syncPending = false
     /// Run full sync cycle by calling this function and passing CKEntity class.
     ///
     @objc public func iCloudSyncEntities(ofType type: CKEntity.Type) {
-        if let T = type as? (NSObjectProtocol & CKEntity).Type {
-            T.self.syncEntities()
-        }
+        type.syncEntities()
     }
     
     @objc public func iCloudForcedSyncEntities(ofType type: CKEntity.Type) {
-        if let T = type as? (NSObjectProtocol & CKEntity).Type {
-            T.self.syncEntities(forced: true)
-        }
+        type.syncEntities(forced: true)
     }
     
     

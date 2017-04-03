@@ -27,7 +27,6 @@
 		CEACB0671E5C872000F5E756 /* CKExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKExtensions.swift; sourceTree = "<group>"; };
 		CEACB0691E5C87AB00F5E756 /* CKPublicInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKPublicInterface.swift; sourceTree = "<group>"; };
 		CEACB06B1E5C8B3C00F5E756 /* CKHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKHelper.swift; sourceTree = "<group>"; };
-		CEB8E0201E3C7DF30054FCB6 /* BridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,7 +43,6 @@
 		CE51F3111E35D2CC00993EC7 = {
 			isa = PBXGroup;
 			children = (
-				CEB8E0201E3C7DF30054FCB6 /* BridgingHeader.h */,
 				CE51F31D1E35D2CC00993EC7 /* CKFramework */,
 				CE51F31C1E35D2CC00993EC7 /* Products */,
 			);
