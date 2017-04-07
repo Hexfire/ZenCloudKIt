@@ -1,8 +1,8 @@
 /***********************************************************************
  
- CKFramework v.0.1 (beta)
+ ZenCloudKit v.0.1 (beta)
  
- CKFramework is a framework intended to facilitate the use of native
+ ZenCloudKit is a framework intended to facilitate the use of native
  CloudKit framework, rendering unified interface which could be
  implemented in projects that employ CoreData (though CoreData is not
  a requirement), making it much easier for developer to implement
@@ -12,7 +12,7 @@
  
  Currently is in beta. Some issues are known and pending update.
  
- Created by Hexfire (trancing@gmail.com) from 11/2016 to 02/2017.
+ Programmed by Hexfire (trancing@gmail.com) from 11/2016 to 02/2017.
  
  ***********************************************************************
  
@@ -26,9 +26,10 @@
 
 import Foundation
 import CloudKit
+import Cocoa
 
 
-internal extension CKEntity {
+internal extension ZKEntity {
     
     internal static var lastSyncKey : String {
         return CKDefaults.kEntityLastSyncPrefix + (Self.self as! NSObject.Type).className()
@@ -72,7 +73,7 @@ internal extension CKEntity {
 }
 
 
-public extension CKEntity  {
+public extension ZKEntity  {
     public static func predicateForId(syncId: String) -> NSPredicate {
         return NSPredicate(format: "\(Self.securedSyncKey!) = %@", syncId)
     }
@@ -85,8 +86,7 @@ public extension CKEntity  {
         return Self.self.changeDateKey ?? cloudKitInstance?.changeDateKey
     }
     
-    
-    public var iCloud: CKEntityFunctions {
+    public var iCloud: ZKEntityFunctions {
         return CloudKitInterface(for: self)
     }
     
@@ -111,7 +111,7 @@ public extension CKEntity  {
         }
         
         cloudKitInstance.processDeleteQueue()
-        cloudKitInstance.syncEntities(allEntitiesOfType: cloudKitInstance.delegate.allEntities(ofType: Self.self)! as? [Self], forcedSync: forced)
+        cloudKitInstance.syncEntities(allEntitiesOfType: cloudKitInstance.delegate.zenAllEntities(ofType: Self.self)! as? [Self], forcedSync: forced)
     }
     
     

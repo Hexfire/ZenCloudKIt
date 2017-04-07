@@ -1,8 +1,8 @@
 /***********************************************************************
  
- CKFramework v.0.1 (beta)
+ ZenCloudKit v.0.1 (beta)
  
- CKFramework is a framework intended to facilitate the use of native
+ ZenCloudKit is a framework intended to facilitate the use of native
  CloudKit framework, rendering unified interface which could be
  implemented in projects that employ CoreData (though CoreData is not
  a requirement), making it much easier for developer to implement
@@ -12,29 +12,22 @@
  
  Currently is in beta. Some issues are known and pending update.
  
- Created by Hexfire (trancing@gmail.com) from 11/2016 to 02/2017.
+ Programmed by Hexfire (trancing@gmail.com) from 11/2016 to 02/2017.
  
  ***********************************************************************
  
  
- CKAux.h
+ ZenCloudKit.h
  
- Auxiliary Objective-C code.
- 
- For instance, Swift lacks exception handling support, but one is required
- particularly when creating CKDatabase instance (which may fail and lead
- to exception being thrown)
+ Obj-C header
  
  */
 
+#import <Cocoa/Cocoa.h>
+#import <ZenCloudKit/ZKAux.h>
 
+//! Project version number for ZenCloudKit.
+FOUNDATION_EXPORT double ZenCloudKitVersionNumber;
 
-NS_INLINE NSException * _Nullable tryBlock(void(^_Nonnull tryBlock)(void)) {
-    @try {
-        tryBlock();
-    }
-    @catch (NSException *exception) {
-        return exception;
-    }
-    return nil;
-}
+//! Project version string for ZenCloudKit.
+FOUNDATION_EXPORT const unsigned char ZenCloudKitVersionString[];

@@ -7,26 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE4F34291E41F5CB00F942D7 /* CKFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4F34271E41F5CB00F942D7 /* CKFramework.swift */; };
-		CE4F342A1E41F5CB00F942D7 /* CKModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4F34281E41F5CB00F942D7 /* CKModel.swift */; };
-		CE51F3201E35D2CC00993EC7 /* CKFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = CE51F31E1E35D2CC00993EC7 /* CKFramework.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		CE7788811E56B69600789FF9 /* CKAux.h in Headers */ = {isa = PBXBuildFile; fileRef = CE7788801E56B69600789FF9 /* CKAux.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		CE7788821E56B6E000789FF9 /* CKAux.h in Sources */ = {isa = PBXBuildFile; fileRef = CE7788801E56B69600789FF9 /* CKAux.h */; };
-		CEACB0681E5C872000F5E756 /* CKExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEACB0671E5C872000F5E756 /* CKExtensions.swift */; };
-		CEACB06A1E5C87AB00F5E756 /* CKPublicInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEACB0691E5C87AB00F5E756 /* CKPublicInterface.swift */; };
-		CEACB06C1E5C8B3C00F5E756 /* CKHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEACB06B1E5C8B3C00F5E756 /* CKHelper.swift */; };
+		CE7788811E56B69600789FF9 /* ZKAux.h in Headers */ = {isa = PBXBuildFile; fileRef = CE7788801E56B69600789FF9 /* ZKAux.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FA62E8141E96597600BB8561 /* ZenCloudKit.h in Headers */ = {isa = PBXBuildFile; fileRef = CE51F31E1E35D2CC00993EC7 /* ZenCloudKit.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FA62E8151E9659BC00BB8561 /* ZKPublicInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEACB0691E5C87AB00F5E756 /* ZKPublicInterface.swift */; };
+		FA62E8161E9659BC00BB8561 /* ZenCloudKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4F34271E41F5CB00F942D7 /* ZenCloudKit.swift */; };
+		FA62E8171E9659BC00BB8561 /* ZKModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4F34281E41F5CB00F942D7 /* ZKModel.swift */; };
+		FA62E8181E9659BC00BB8561 /* ZKExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEACB0671E5C872000F5E756 /* ZKExtensions.swift */; };
+		FA62E8191E9659BC00BB8561 /* ZKHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEACB06B1E5C8B3C00F5E756 /* ZKHelper.swift */; };
+		FA62E81A1E9659BC00BB8561 /* ZenCloudKit.h in Sources */ = {isa = PBXBuildFile; fileRef = CE51F31E1E35D2CC00993EC7 /* ZenCloudKit.h */; };
+		FA62E81C1E965A7F00BB8561 /* ZKAux.h in Sources */ = {isa = PBXBuildFile; fileRef = CE7788801E56B69600789FF9 /* ZKAux.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE4F34271E41F5CB00F942D7 /* CKFramework.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKFramework.swift; sourceTree = "<group>"; };
-		CE4F34281E41F5CB00F942D7 /* CKModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKModel.swift; sourceTree = "<group>"; };
-		CE51F31B1E35D2CC00993EC7 /* CKFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CKFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		CE51F31E1E35D2CC00993EC7 /* CKFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKFramework.h; sourceTree = "<group>"; };
+		CE4F34271E41F5CB00F942D7 /* ZenCloudKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZenCloudKit.swift; sourceTree = "<group>"; };
+		CE4F34281E41F5CB00F942D7 /* ZKModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZKModel.swift; sourceTree = "<group>"; };
+		CE51F31B1E35D2CC00993EC7 /* ZenCloudKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ZenCloudKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE51F31E1E35D2CC00993EC7 /* ZenCloudKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZenCloudKit.h; sourceTree = "<group>"; };
 		CE51F31F1E35D2CC00993EC7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE7788801E56B69600789FF9 /* CKAux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKAux.h; sourceTree = "<group>"; };
-		CEACB0671E5C872000F5E756 /* CKExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKExtensions.swift; sourceTree = "<group>"; };
-		CEACB0691E5C87AB00F5E756 /* CKPublicInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKPublicInterface.swift; sourceTree = "<group>"; };
-		CEACB06B1E5C8B3C00F5E756 /* CKHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CKHelper.swift; sourceTree = "<group>"; };
+		CE7788801E56B69600789FF9 /* ZKAux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZKAux.h; sourceTree = "<group>"; };
+		CEACB0671E5C872000F5E756 /* ZKExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZKExtensions.swift; sourceTree = "<group>"; };
+		CEACB0691E5C87AB00F5E756 /* ZKPublicInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZKPublicInterface.swift; sourceTree = "<group>"; };
+		CEACB06B1E5C8B3C00F5E756 /* ZKHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZKHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,7 +44,7 @@
 		CE51F3111E35D2CC00993EC7 = {
 			isa = PBXGroup;
 			children = (
-				CE51F31D1E35D2CC00993EC7 /* CKFramework */,
+				CE51F31D1E35D2CC00993EC7 /* ZenCloudKit */,
 				CE51F31C1E35D2CC00993EC7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -51,24 +52,24 @@
 		CE51F31C1E35D2CC00993EC7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CE51F31B1E35D2CC00993EC7 /* CKFramework.framework */,
+				CE51F31B1E35D2CC00993EC7 /* ZenCloudKit.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CE51F31D1E35D2CC00993EC7 /* CKFramework */ = {
+		CE51F31D1E35D2CC00993EC7 /* ZenCloudKit */ = {
 			isa = PBXGroup;
 			children = (
-				CEACB0691E5C87AB00F5E756 /* CKPublicInterface.swift */,
-				CE4F34271E41F5CB00F942D7 /* CKFramework.swift */,
-				CE4F34281E41F5CB00F942D7 /* CKModel.swift */,
-				CEACB0671E5C872000F5E756 /* CKExtensions.swift */,
-				CEACB06B1E5C8B3C00F5E756 /* CKHelper.swift */,
-				CE51F31E1E35D2CC00993EC7 /* CKFramework.h */,
-				CE7788801E56B69600789FF9 /* CKAux.h */,
+				CE51F31E1E35D2CC00993EC7 /* ZenCloudKit.h */,
+				CE4F34271E41F5CB00F942D7 /* ZenCloudKit.swift */,
+				CEACB0691E5C87AB00F5E756 /* ZKPublicInterface.swift */,
+				CE4F34281E41F5CB00F942D7 /* ZKModel.swift */,
+				CEACB0671E5C872000F5E756 /* ZKExtensions.swift */,
+				CEACB06B1E5C8B3C00F5E756 /* ZKHelper.swift */,
+				CE7788801E56B69600789FF9 /* ZKAux.h */,
 				CE51F31F1E35D2CC00993EC7 /* Info.plist */,
 			);
-			path = CKFramework;
+			path = ZenCloudKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -78,17 +79,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE51F3201E35D2CC00993EC7 /* CKFramework.h in Headers */,
-				CE7788811E56B69600789FF9 /* CKAux.h in Headers */,
+				CE7788811E56B69600789FF9 /* ZKAux.h in Headers */,
+				FA62E8141E96597600BB8561 /* ZenCloudKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		CE51F31A1E35D2CC00993EC7 /* CKFramework */ = {
+		CE51F31A1E35D2CC00993EC7 /* ZenCloudKit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CE51F3231E35D2CC00993EC7 /* Build configuration list for PBXNativeTarget "CKFramework" */;
+			buildConfigurationList = CE51F3231E35D2CC00993EC7 /* Build configuration list for PBXNativeTarget "ZenCloudKit" */;
 			buildPhases = (
 				CE51F3161E35D2CC00993EC7 /* Sources */,
 				CE51F3171E35D2CC00993EC7 /* Frameworks */,
@@ -99,9 +100,9 @@
 			);
 			dependencies = (
 			);
-			name = CKFramework;
+			name = ZenCloudKit;
 			productName = CKFramework;
-			productReference = CE51F31B1E35D2CC00993EC7 /* CKFramework.framework */;
+			productReference = CE51F31B1E35D2CC00993EC7 /* ZenCloudKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -120,7 +121,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CE51F3151E35D2CC00993EC7 /* Build configuration list for PBXProject "CKFramework" */;
+			buildConfigurationList = CE51F3151E35D2CC00993EC7 /* Build configuration list for PBXProject "ZenCloudKit" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -132,7 +133,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				CE51F31A1E35D2CC00993EC7 /* CKFramework */,
+				CE51F31A1E35D2CC00993EC7 /* ZenCloudKit */,
 			);
 		};
 /* End PBXProject section */
@@ -152,12 +153,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE7788821E56B6E000789FF9 /* CKAux.h in Sources */,
-				CE4F34291E41F5CB00F942D7 /* CKFramework.swift in Sources */,
-				CE4F342A1E41F5CB00F942D7 /* CKModel.swift in Sources */,
-				CEACB06C1E5C8B3C00F5E756 /* CKHelper.swift in Sources */,
-				CEACB0681E5C872000F5E756 /* CKExtensions.swift in Sources */,
-				CEACB06A1E5C87AB00F5E756 /* CKPublicInterface.swift in Sources */,
+				FA62E8151E9659BC00BB8561 /* ZKPublicInterface.swift in Sources */,
+				FA62E8161E9659BC00BB8561 /* ZenCloudKit.swift in Sources */,
+				FA62E8171E9659BC00BB8561 /* ZKModel.swift in Sources */,
+				FA62E8181E9659BC00BB8561 /* ZKExtensions.swift in Sources */,
+				FA62E8191E9659BC00BB8561 /* ZKHelper.swift in Sources */,
+				FA62E81C1E965A7F00BB8561 /* ZKAux.h in Sources */,
+				FA62E81A1E9659BC00BB8561 /* ZenCloudKit.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,11 +274,11 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = CKFramework/Info.plist;
+				INFOPLIST_FILE = ZenCloudKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = academmedia.CKFramework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zenCloudKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -297,11 +299,11 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = CKFramework/Info.plist;
+				INFOPLIST_FILE = ZenCloudKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				PRODUCT_BUNDLE_IDENTIFIER = academmedia.CKFramework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zenCloudKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -312,7 +314,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CE51F3151E35D2CC00993EC7 /* Build configuration list for PBXProject "CKFramework" */ = {
+		CE51F3151E35D2CC00993EC7 /* Build configuration list for PBXProject "ZenCloudKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CE51F3211E35D2CC00993EC7 /* Debug */,
@@ -321,7 +323,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CE51F3231E35D2CC00993EC7 /* Build configuration list for PBXNativeTarget "CKFramework" */ = {
+		CE51F3231E35D2CC00993EC7 /* Build configuration list for PBXNativeTarget "ZenCloudKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CE51F3241E35D2CC00993EC7 /* Debug */,

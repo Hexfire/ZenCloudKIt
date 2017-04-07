@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0820"
+   LastUpgradeVersion = "0830"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CE51F31A1E35D2CC00993EC7"
-               BuildableName = "CKFramework.framework"
-               BlueprintName = "CKFramework"
-               ReferencedContainer = "container:CKFramework.xcodeproj">
+               BuildableName = "ZenCloudKit.framework"
+               BlueprintName = "ZenCloudKit"
+               ReferencedContainer = "container:ZenCloudKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CE51F31A1E35D2CC00993EC7"
-            BuildableName = "CKFramework.framework"
-            BlueprintName = "CKFramework"
-            ReferencedContainer = "container:CKFramework.xcodeproj">
+            BuildableName = "ZenCloudKit.framework"
+            BlueprintName = "ZenCloudKit"
+            ReferencedContainer = "container:ZenCloudKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -64,9 +64,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CE51F31A1E35D2CC00993EC7"
-            BuildableName = "CKFramework.framework"
-            BlueprintName = "CKFramework"
-            ReferencedContainer = "container:CKFramework.xcodeproj">
+            BuildableName = "ZenCloudKit.framework"
+            BlueprintName = "ZenCloudKit"
+            ReferencedContainer = "container:ZenCloudKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

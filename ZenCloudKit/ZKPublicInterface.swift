@@ -1,8 +1,8 @@
 /***********************************************************************
  
- CKFramework v.0.1 (beta)
+ ZenCloudKit v.0.1 (beta)
  
- CKFramework is a framework intended to facilitate the use of native
+ ZenCloudKit is a framework intended to facilitate the use of native
  CloudKit framework, rendering unified interface which could be
  implemented in projects that employ CoreData (though CoreData is not
  a requirement), making it much easier for developer to implement
@@ -12,7 +12,7 @@
  
  Currently is in beta. Some issues are known and pending update.
  
- Created by Hexfire (trancing@gmail.com) from 11/2016 to 02/2017.
+ Programmed by Hexfire (trancing@gmail.com) from 11/2016 to 02/2017.
  
  ***********************************************************************
  
@@ -29,11 +29,11 @@ import CloudKit
 
 /***********************************************************************
  
- CloudKitProtocol
+ ZenCloudKitProtocol
  
  Main protocol which should be implemented by Delegate.
  
- This is required for CKFramework to function.
+ This is required for ZenCloudKit to function.
  
  
  # Sample:
@@ -47,7 +47,7 @@ import CloudKit
  INTERFACE
  
  
- * [1] createEntityCallback - function which should return newly
+ * [1] createEntity - function which should return newly
    created entity object of type T. This is required for internal sync
    functionality to work.
  
@@ -55,7 +55,7 @@ import CloudKit
    On client-side, type-check T (is, as), create and return new T object
  
  
- * [2] fetchEntityCallback - function which should return local
+ * [2] fetchEntity - function which should return local
    object of type T by the given syncId. If no object could be fetched,
    return nil.
  
@@ -64,20 +64,20 @@ import CloudKit
    otherwise return nil.
  
  
- * [3] allEntities - function which should return all entities of type T
+ * [3] zenAllEntities - function which should return all entities of type T
  
    TO-DO:
    On client-side, type-check T (is, as), fetch and return all T objects (or nil)
  
  
- * [4] syncDidFinish - function which is called everytime T objects finish syncing
+ * [4] zenSyncDidFinish - function which is called everytime T objects finish syncing
  
    TO-DO:
    On client-side, type-check T (is, as). If it's not nil, parse newRecords
    and updatedRecords arrays to create and update local objects. Otherwise,
-   check deletedRecords (array of CKDeleteInfo objects) which contain
+   check deletedRecords (array of ZKDeleteInfo objects) which contain
    entityType and syncId fields. Use entityType to determine the type of
-   deleted CKEntity object and syncId to fetch particular object. Once parsed,
+   deleted ZKEntity object and syncId to fetch particular object. Once parsed,
    make required actions for your app to reflect changes made (e.g. update
    UI and content).
 
@@ -85,10 +85,10 @@ import CloudKit
               to synchronize remote database state.
 
  
- * [5] entityDidSaveToCloudCallback - function which is called once an object
-   has been saved to CloudKit database by CKFramework. This one is optional,
+ * [5] zenEntityDidSaveToCloud - function which is called once an object
+   has been saved to CloudKit database by ZenCloudKit. This one is optional,
    but highly recommended to implement especially if CoreData entities are
-   used. CKFramework sets/updates syncID and changeDate properties of your
+   used. ZenCloudKit sets/updates syncID and changeDate properties of your
    local objects, which means database context must be saved.
  
    TO-DO:
@@ -102,14 +102,18 @@ import CloudKit
 */
 
 
-@objc public protocol CloudKitProtocol {
+@objc public protocol ZenCloudKitProtocol {
     
-    @objc func createEntityCallback(ofType T: CKEntity.Type) -> CKEntity?
-    @objc func fetchEntityCallback(ofType T: CKEntity.Type, syncId: String) -> CKEntity?
-    @objc func allEntities(ofType T: CKEntity.Type) -> [CKEntity]?
-    @objc func syncDidFinish(for T: CKEntity.Type!, newRecords:[CKRecord], updatedRecords:[CKRecord], deletedRecords:[CKDeleteInfo], finishSync: @escaping ()->())
+    @objc func zenCreateEntity(ofType T: ZKEntity.Type) -> ZKEntity?
+    @objc func zenFetchEntity(ofType T: ZKEntity.Type, syncId: String) -> ZKEntity?
+    @objc func zenAllEntities(ofType T: ZKEntity.Type) -> [ZKEntity]?
+    @objc func zenSyncDidFinish(for T: ZKEntity.Type!,
+                             newRecords:[CKRecord],
+                             updatedRecords:[CKRecord],
+                             deletedRecords:[ZKDeleteInfo],
+                             finishSync: @escaping ()->())
     
-    @objc optional func entityDidSaveToCloudCallback (entity: CKEntity, record: CKRecord?, error: Error?)
+    @objc optional func zenEntityDidSaveToCloud (entity: ZKEntity, record: CKRecord?, error: Error?)
     
 }
 
@@ -117,12 +121,12 @@ import CloudKit
 
 /***********************************************************************
  
- CKEntity
+ ZKEntity
  
  Protocol implemented by NSObject-derived entities you would want to
  sync with CloudKit. For instance, NSManagedObject subclass is a fair choice.
  
- NOTE: It is required that your entities derive from NSObject for CKFramework
+ NOTE: It is required that your entities derive from NSObject for ZenCloudKit
        to function, since KVC is a foundation of all mapping-related operations.
  
  
@@ -163,20 +167,20 @@ import CloudKit
  
   * [3] syncIdKey - name of the property which holds the ID of remote object.
         This is conditionally optional, since it's suffice to specify syncIdKey
-        for all CK Entities while initializing CKFramework instance.
+        for all CK Entities while initializing ZenCloudKit instance.
  
     
         Usage:
             static var syncId: String = "cloudKitId"
             
             // cloudKitId is a property of your
-            //                   CKEntity class
+            //                   ZKEntity class
  
  
  
   * [4] changeDateKey - name of the property which holds object change date.
         This is not required for it's suffice to specify changeDateKey for all
-        entities while initializing CKFramework instance.
+        entities while initializing ZenCloudKit instance.
  
  
         Usage:
@@ -186,8 +190,8 @@ import CloudKit
  
   * [5] references - dictionary which contains mapped to-one-references to other objects.
         The scheme is: [ localObject : remoteKey ]
-        The gist here is that localObject MUST also correctly implement CKEntity.
-        When you call save() method on your local object, CKFramework will attempt
+        The gist here is that localObject MUST also correctly implement ZKEntity.
+        When you call save() method on your local object, ZenCloudKit will attempt
         to save all referenced objects as well by consequently setting references
         over in the CloudKit database (reflected in the CK dashboard).
         Programmatically speaking, it's all about creating CKReference.
@@ -199,18 +203,18 @@ import CloudKit
  
  
  
-  * [6] referenceLists - optional array of CKRefList objects, which represent to-many relationships.
-        The scheme is: CKRefList(entityType: <CKEntity.Type>, 
-                                localSource: <local property which returns array of CKEntity objects>,
+  * [6] referenceLists - optional array of ZKRefList objects, which represent to-many relationships.
+        The scheme is: ZKRefList(entityType: <ZKEntity.Type>, 
+                                localSource: <local property which returns array of ZKEntity objects>,
                                 remoteKey: <remote key at CloudKit to hold array of CKReference items>
 
  
         Usage:
-            static var referenceLists: [CKRefList] = [CKRefList(entityType: Course.self,
+            static var referenceLists: [ZKRefList] = [ZKRefList(entityType: Course.self,
                                                     localSource: "courseReferences",
                                                     remoteKey: "courses")]
  
-        courseReferences is a user-defined property which returns array of CKEntity objects
+        courseReferences is a user-defined property which returns array of ZKEntity objects
         you are willing to save and add to reference list of saved root object
  
          var courseReferences : [Course]? {
@@ -228,7 +232,7 @@ import CloudKit
          }
         
         Implementing appropriate setter is also required for your app to be able
-        to store objects retrieved from CloudKit. Thus, localSource field of CKRefList
+        to store objects retrieved from CloudKit. Thus, localSource field of ZKRefList
         is essentially a link to a handler that manages in-out operations.
  
  
@@ -254,7 +258,7 @@ import CloudKit
   * [8] referencePlaceholder - if your CoreData (or a mere NSObject) entity instance is expected
         to have particular reference to not be nil, you can specify default value (read: default
         object) which will be set whenever there would be no specific reference set over in the
-        CloudKit. When synced, CKFramework will automatically assign that placeholder value to a
+        CloudKit. When synced, ZenCloudKit will automatically assign that placeholder value to a
         property to avoid nil.
  
         Say, you have an object A with property b of type B, locally and in the CloudKit:
@@ -263,28 +267,28 @@ import CloudKit
  
         But in your CloudKit database you have this (A) object with null reference to B.
         Normally after sync you would have an object A, whose property b would be nil.
-        With placeholder property set, CKFramework will automatically handle this situation
+        With placeholder property set, ZenCloudKit will automatically handle this situation
         and perform following assignment: A.b = placeholder, with the latter being an instance
         of B you specify.
  
         Usage:
-            static var referencePlaceholder: CKEntity = B.defaultInstance()
+            static var referencePlaceholder: ZKEntity = B.defaultInstance()
 
-        NOTE: reference placeholder is set in the target, not in the source CKEntity class.
+        NOTE: reference placeholder is set in the target, not in the source ZKEntity class.
  
 */
 
 
-@objc public protocol CKEntity : NSObjectProtocol  {
+@objc public protocol ZKEntity : NSObjectProtocol  {
     
     @objc static var recordType : String {get}
     @objc static var mappingDictionary: [String : String] {get}
     @objc optional static var syncIdKey: String { get }
     @objc optional static var changeDateKey: String { get }
     @objc optional static var references : [String : String] {get}
-    @objc optional static var referenceLists : [CKRefList] {get}
+    @objc optional static var referenceLists : [ZKRefList] {get}
     @objc optional static var isWeak : Bool { get }
-    @objc optional static var referencePlaceholder : CKEntity { get }
+    @objc optional static var referencePlaceholder : ZKEntity { get }
     
 }
 
@@ -292,33 +296,33 @@ import CloudKit
 
 /***********************************************************************
  
- CKRefList
+ ZKRefList
  
- Proxy-object which contains basic info required for CKFramework to handle
+ Proxy-object which contains basic info required for ZenCloudKit to handle
  'to-many' relationships.
  
  
  INTERFACE
  
- entityType - CKEntity class.
+ entityType - ZKEntity class.
  
  localSource - name of the property which returns array of <entityType> objects
  
  remoteKey - CKRecord key to save list of CKReference objects.
  
  
- Refer to CKEntity instructions above.
+ Refer to ZKEntity instructions above.
  
  ***********************************************************************/
 
 
-@objc public class CKRefList : NSObject {
+@objc public class ZKRefList : NSObject {
     
-    public var entityType : CKEntity.Type?
+    public var entityType : ZKEntity.Type?
     public var localSource : String?
     public var remoteKey : String?
     
-    public init(entityType: CKEntity.Type, localSource: String, remoteKey: String) {
+    public init(entityType: ZKEntity.Type, localSource: String, remoteKey: String) {
         self.entityType = entityType
         self.localSource = localSource
         self.remoteKey = remoteKey
@@ -328,17 +332,17 @@ import CloudKit
 
 /***********************************************************************
  
- CKDeleteInfo
+ ZKDeleteInfo
  
- Proxy-object which contains basic info required for CKFramework to handle
+ Proxy-object which contains basic info required for ZenCloudKit to handle
  remotely deleted objects. 
  
- Before finalizing deletion during full sync cycle, CKFramework prepares
+ Before finalizing deletion during full sync cycle, ZenCloudKit prepares
  a list of ready-to-be-deleted objects by giving you info about their local
- CKEntity types and IDs so you could perform a cleanup in your app beforehand.
+ ZKEntity types and IDs so you could perform a cleanup in your app beforehand.
 
  NOTE: Once having done the cleanup, it's required that you call finishSync()
- within your syncDidFinish implementation to allow CKFramework delete these 
+ within your zenSyncDidFinish implementation to allow ZenCloudKit delete these 
  objects from CloudKit. This is for the safety and integrity of your app.
  
  
@@ -347,22 +351,22 @@ import CloudKit
  
  
  
- entityType - class which implements CKEntity protocol.
+ entityType - class which implements ZKEntity protocol.
  
  syncId - ID which you should use for removal.
  
  
- Refer to CKEntity instructions above.
+ Refer to ZKEntity instructions above.
  
  ***********************************************************************/
 
 
-@objc public class CKDeleteInfo : NSObject {
+@objc public class ZKDeleteInfo : NSObject {
     
-    public var entityType : CKEntity.Type!
+    public var entityType : ZKEntity.Type!
     public var syncId : String!
     
-    init(entityType : CKEntity.Type, syncId: String) {
+    init(entityType : ZKEntity.Type, syncId: String) {
         self.entityType = entityType
         self.syncId = syncId
     }
@@ -372,7 +376,7 @@ import CloudKit
 
 /***********************************************************************
  
- CKEntityFunctions
+ ZKEntityFunctions
  
  Protocol for iCloud proxy-object, currently only available from Swift
  client code.
@@ -384,13 +388,13 @@ import CloudKit
  
  This is a syntactic sugar.
  
- COMMON way to perform CKEntity-related operations is via CKFramework
+ COMMON way to perform ZKEntity-related operations is via ZenCloudKit
  singleton instance:
  
      let cloudKit = CloudKitFramework.sharedInstance
      
-     cloudKit.iCloudSave(<CKEntity>)
-     cloudKit.iCloudSaveAndWait(<CKEntity>)
+     cloudKit.iCloudSave(<ZKEntity>)
+     cloudKit.iCloudSaveAndWait(<ZKEntity>)
  
      etc...
  
@@ -398,7 +402,7 @@ import CloudKit
  ***********************************************************************/
 
 
-@objc public protocol CKEntityFunctions {
+@objc public protocol ZKEntityFunctions {
     
     @objc func update(fromRemote record: CKRecord, fetchReferences fetch: Bool)
     @objc func save()
@@ -413,16 +417,16 @@ import CloudKit
 
 /***********************************************************************
  
- CKContainerType
+ ZKContainerType
  
  CloudKit Container Type (Scope)
  
- This one is set during CKFramework setup.
+ This one is set during ZenCloudKit setup.
  
  Usage:
  
      cloudKit.setup(container: "iCloud.com.myapp",
-                       ofType: .private,               // <-------- CKContainerType
+                       ofType: .private,               // <-------- ZKContainerType
                        syncIdKey: "syncID",
                        changeDateKey: "changeDate",
                        entities: [Person.self, Address.self],
@@ -433,7 +437,7 @@ import CloudKit
  ***********************************************************************/
 
 
-@objc public enum CKContainerType : Int {
+@objc public enum ZKContainerType : Int {
     case `private`
     case `public`
 }

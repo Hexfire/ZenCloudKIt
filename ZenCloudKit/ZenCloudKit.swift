@@ -1,8 +1,8 @@
 /***********************************************************************
  
- CKFramework v.0.1 (beta)
+ ZenCloudKit v.0.1 (beta)
  
- CKFramework is a framework intended to facilitate the use of native
+ ZenCloudKit is a framework intended to facilitate the use of native
  CloudKit framework, rendering unified interface which could be
  implemented in projects that employ CoreData (though CoreData is not
  a requirement), making it much easier for developer to implement
@@ -12,12 +12,12 @@
  
  Currently is in beta. Some issues are known and pending update.
  
- Created by Hexfire (trancing@gmail.com) from 11/2016 to 01/2017.
+ Programmed by Hexfire (trancing@gmail.com) from 11/2016 to 01/2017.
  
  ***********************************************************************
  
  
- CKFramework.swift
+ ZenCloudKit.swift
  
  Main class which contains core functionality.
  
@@ -29,7 +29,7 @@ import Cocoa
 import CloudKit
 
 // Project-scope variable to CK controller instance
-internal var cloudKitInstance : CloudKitFramework!
+internal var cloudKitInstance : ZenCloudKit!
 
 
 // Variable that defines whether full sync cycle is needed to synchronize changes
@@ -42,26 +42,26 @@ internal var syncPending = false
 /* IMPLEMENTATION */
 
 
-// Although mainly aimed at Swift 3 developers, major part of CKFramework 
+// Although mainly aimed at Swift 3 developers, major part of ZenCloudKit 
 // functionality can be successfully bridged to Objective-C, hence the class
 // is derived from NSObject to allow Obj-C compatibility
 
-@objc public class CloudKitFramework : NSObject {
+@objc public class ZenCloudKit : NSObject {
     
     
 // MARK: - Public Interface
     
-    // delegate property is required for CKFramework to function
-    public var delegate : CloudKitProtocol!
+    // delegate property is required for ZenCloudKit to function
+    public var delegate : ZenCloudKitProtocol!
     
     // In debug mode all core sync actions are logged. Defaults to true.
     public var debugMode : Bool = true
     
     // public singleton accessor
-    @objc public static var sharedInstance = CloudKitFramework()
+    @objc public static var sharedInstance = ZenCloudKit()
     
     // Registered entities we are about to work with (sync)
-    public var entities : [CKEntity.Type]!
+    public var entities : [ZKEntity.Type]!
     
     
 // MARK: - Base Configuration
@@ -71,7 +71,7 @@ internal var syncPending = false
     // priority compared to intrinsic/individual syncID entity property.
     internal var syncIdKey : String! = "syncID"
     
-    // Similarly, changeDateKey is the second place CKFramework will
+    // Similarly, changeDateKey is the second place ZenCloudKit will
     // seek to determine change date key of an entity.
     // If an entity has changeDateKey defined, it will be taken.
     internal var changeDateKey : String! = "changeDate"
@@ -84,17 +84,18 @@ internal var syncPending = false
     // that use your app will be registered in the CloudKit
     internal var devicesRecordType : String! = "Device"
     
-    // Array of syncId exception keys which tell CKFramework
+    // Array of syncId exception keys which tell ZenCloudKit
     // to ignore objects possessing them.
     internal var ignoreKeys : [String]!
     
-    // Array of registered devices, filled internally by CKFramework.
+    // Array of registered devices, filled internally by ZenCloudKit.
     // Required to successfully manage update/deletion of CK objects.
     internal var allDevices = [String]()
     
     // Internal flag which can immediately lock sync functionality
     // Exposed to client via lockSync() method. Toggled back and forth.
     internal var isSyncLocked = false // Permit syncing
+
     
 
 // MARK: - CloudKit internal objects
@@ -102,11 +103,11 @@ internal var syncPending = false
 
     // Container is inherently a source of all things. Initialized with ID
     // and provides access to database with accessibility scope
-    internal var container : CKContainer!
+    internal var container : CKContainer! = nil
     
     // Database represents actual host of CKRecord objects
     // Can be either private or public. Set during initialization
-    internal var database : CKDatabase!
+    internal var database : CKDatabase! = nil
     
     
 // MARK: - Mechanics
@@ -127,7 +128,7 @@ internal var syncPending = false
     private var queues = [DispatchQueue]()
     
     // Internal use background queue
-    private let background_queue = DispatchQueue(label: "background_queue", attributes: DispatchQueue.Attributes.concurrent)
+    private let background_queue = DispatchQueue.init(label: "background_queue", qos: .userInitiated, attributes: .concurrent )
     
     
 /* --------------------------------------------- */
@@ -156,10 +157,12 @@ internal var syncPending = false
         
         background_queue.async(execute: { [unowned self] in
             let sema = DispatchSemaphore(value: 0)
-            DispatchQueue.global(qos: .default).async(execute: {
+            
+            // Highest priority as this one is performed on startup
+            DispatchQueue.global(qos: .userInteractive).async(execute: {
                 
                 operation.queuePriority = .veryHigh
-                operation.qualityOfService = .default
+                operation.qualityOfService = .userInitiated
                 operation.recordFetchedBlock = { record in
                     if record.recordID.recordName != self.deviceId {
                         self.allDevices.append(record.recordID.recordName)
@@ -177,7 +180,7 @@ internal var syncPending = false
                             if rec != nil {
                                 if self.debugMode { print("[CK DEVICE INIT] Device ID initialized.") }
                             } else {
-                                if self.debugMode { print("[CK DEVICE INIT] Failed to initialize device ID: \(String(describing: error)) - record: \(String(describing: rec))") }
+                                if self.debugMode { print("[CK DEVICE INIT] Failed to initialize device ID: \(String(describing: error!)) - CKRecord: \(String(describing: rec))") }
                             }
                         })
                     } else {
@@ -232,8 +235,8 @@ internal var syncPending = false
      
         syncIdKey: String 
      
-                - name of the property to seek in every CKEntity class for sync ID.
-                If CKEntity class has its own syncIdKey defined, it will be taken as being
+                - name of the property to seek in every ZKEntity class for sync ID.
+                If ZKEntity class has its own syncIdKey defined, it will be taken as being
                 of higher priority. Generally it's more convenient to have identical
                 syncId property across all entities than that defined in each class.
 
@@ -241,19 +244,19 @@ internal var syncPending = false
      
                 - as with syncIdKey, this parameter defines change date key for all
                 registered entities. Along the same lines, you can define class-specific
-                changeDateKey for each CKEntity class.
+                changeDateKey for each ZKEntity class.
      
-        entities: [CKEntity.Type]
+        entities: [ZKEntity.Type]
                 
-                - array of CKEntity classes which will be used by CKFramework.
-                NOTE that implementing CKEntity protocol is not(!) enough for entity to be synced.
-                It is also required to register all the entities within CKFramework by passing
+                - array of ZKEntity classes which will be used by ZenCloudKit.
+                NOTE that implementing ZKEntity protocol is not(!) enough for entity to be synced.
+                It is also required to register all the entities within ZenCloudKit by passing
                 them here.
      
         ignoreKeys: [String]!,
      
-                - optional array of syncId exceptions. CKEntity object with one of these values
-                as syncId will be ignored by CKFramework if passed over for sync processing.
+                - optional array of syncId exceptions. ZKEntity object with one of these values
+                as syncId will be ignored by ZenCloudKit if passed over for sync processing.
      
         deviceId: String,
      
@@ -265,23 +268,51 @@ internal var syncPending = false
     
     
     @objc public func setup(container: String,
-                      ofType type: CKContainerType,
+                      ofType type: ZKContainerType,
                       syncIdKey: String!,
                       changeDateKey: String!,
-                      entities: [CKEntity.Type],
+                      entities: [ZKEntity.Type],
                       ignoreKeys : [String]!,
                       deviceId: String)
     {
         
+        tryBlock {
+            self.container = CKContainer(identifier: container)
+            self.database = type == .public
+                ? self.container.publicCloudDatabase
+                : self.container.privateCloudDatabase
+        }
+        
+        guard self.container != nil else {
+            print("[CK INIT] FAILURE. Container cannot be initialized")
+            return
+        }
+        
+        
+        // Container instance may well be created, but it doesn't guarantee
+        // that actual container with given name exists! Check by fetching zones:
+        var isValidContainer = false
+        let sema = DispatchSemaphore.init(value: 0)
+        self.database.fetchAllRecordZones(completionHandler: { (zones, error) in
+            if error != nil {
+                print("[CK INIT] FAILURE. Container cannot be initialized: \(String(describing: error!))")
+            } else {
+                isValidContainer = true
+            }
+            sema.signal()
+        })
+        sema.wait()
+        
+        if !isValidContainer { return }
         
         // Composing list of misimplemented entities, i.e. the ones
         // which have either recordType or mappingDictionary fields undefined
         let misimplemented = entities.filter {
             let item = ($0 as! NSObject.Type);
-
+            
             return
-                item.value(forKey: CKEntityKeys.recordType) as? String ?? "" == "" ||
-                (item.value(forKey: CKEntityKeys.mappingDictionary) as? [String:String] ?? [String:String]())!.count == 0
+                item.value(forKey: ZKEntityKeys.recordType) as? String ?? "" == "" ||
+                    (item.value(forKey: ZKEntityKeys.mappingDictionary) as? [String:String] ?? [String:String]())!.count == 0
         }
         
         
@@ -301,30 +332,20 @@ internal var syncPending = false
         }
         
         
-        tryBlock {
-            self.container = CKContainer(identifier: container)
-            self.database = type == .public
-                ? self.container.publicCloudDatabase
-                : self.container.privateCloudDatabase
-        }
-        
-        
-        if self.container == nil {
-            print("[CK INIT] FAILURE. Container cannot be initialized")
-            return
-        }
-        
-        
         self.syncIdKey = syncIdKey
         self.changeDateKey = changeDateKey
         self.entities = entities
         self.deviceId = deviceId
         self.ignoreKeys = ignoreKeys
         
-
         self.background_queue.async(flags: .barrier, execute:  {
             
             self.container.accountStatus { (status, error) in
+                
+                if let error = error {
+                    print("[CK INIT] FAILURE. Container cannot be initialized: \(error)")
+                    return
+                }
                 
                 switch status {
                     
@@ -332,7 +353,7 @@ internal var syncPending = false
                     if self.debugMode { print("[CK INIT] ACCESS ERROR! \(String(describing: error)) (\(String(describing: status)))") }
                     return
                     
-                default:
+                case .available:
                     if self.debugMode { print("[CK INIT] CLOUDKIT ACCESS GRANTED!") }
                     DispatchQueue.global(qos: .utility).async {
                         self.fetchListOfDevices()
@@ -340,16 +361,11 @@ internal var syncPending = false
                     }
                     
                 }
-                
-                
             }
         })
         
-        
         cloudKitInstance = self
         
-        if self.debugMode { print("[CK INIT] CKController initialized") }
-
     }
     
     
@@ -506,7 +522,7 @@ internal var syncPending = false
     internal func processDeleteQueue() {
         
         if isSyncLocked {
-            if self.debugMode { print("[CK SYNC FAILURE] Sync locked. Enable sync in the app to allow syncing") }
+            if self.debugMode { print("[CK SYNC] Sync locked. Enable sync in the app to allow syncing") }
             return
         }
         
@@ -515,23 +531,23 @@ internal var syncPending = false
         let operation = CKQueryOperation.init(query: query)
         
         var finishSyncRecord : CKRecord!
-        var deletedRecords = [CKDeleteInfo]()
+        var deletedRecords = [ZKDeleteInfo]()
         
         
-        operation.queuePriority = .normal
-        operation.qualityOfService = .default
+        operation.queuePriority = .high
+        operation.qualityOfService = .utility
         
         operation.recordFetchedBlock = { [unowned self] record in
             
             self.background_queue.async(flags: .barrier, execute: { [unowned self] in
                 if let recordType = self.entities.first (where: { $0.self.recordType == record[CKDeleteQueueKeys.recordType] as? String }) {
-                    deletedRecords.append(CKDeleteInfo.init(entityType: recordType.self, syncId: record[CKDeleteQueueKeys.recordId] as! String))
+                    deletedRecords.append(ZKDeleteInfo.init(entityType: recordType.self, syncId: record[CKDeleteQueueKeys.recordId] as! String))
                 }
                 
                 finishSyncRecord = record
                 
                 
-                self.delegate.syncDidFinish(for: nil, newRecords: [], updatedRecords: [], deletedRecords: deletedRecords, finishSync: {
+                self.delegate.zenSyncDidFinish(for: deletedRecords.first?.entityType, newRecords: [], updatedRecords: [], deletedRecords: deletedRecords, finishSync: {
                     self.database.delete(withRecordID: finishSyncRecord.recordID, completionHandler: { (recordId, error) in
                         if error == nil {
                             if self.debugMode { print("[CK OPERATION] Deleted record \(record) from queue") }
@@ -562,10 +578,10 @@ internal var syncPending = false
      
      Parameters:
      
-        entity: CKEntity
+        entity: ZKEntity
      
-                - CKEntity object to save, i.e. an NSObject-derived instance,
-                with essential CKEntity properties implemented.
+                - ZKEntity object to save, i.e. an NSObject-derived instance,
+                with essential ZKEntity properties implemented.
      
      
         preventReferenceCycle: Bool (defaults to false)
@@ -604,7 +620,7 @@ internal var syncPending = false
         updateLastSyncDate : Bool
                 
                 - used internally by syncEntities function. Tells to update last sync
-                date of CKEntity class. Sync dates stored in UserDefaults by CKFramework
+                date of ZKEntity class. Sync dates stored in UserDefaults by ZenCloudKit
                 and are needed for proper run of full sync cycles.
      
      
@@ -616,15 +632,14 @@ internal var syncPending = false
 
      */
 
-    
 
     @discardableResult
-    internal func saveRecordSync(entity : CKEntity,
+    internal func saveRecordSync(entity : ZKEntity,
                                  preventReferenceCycle : Bool = false,
                                  specificKeys : [String]? = nil,
                                  submitBlock: ((CKRecord) -> ())? = nil,
                                  updateLastSyncDate: Bool = false,
-                                 completionHandler: ((CKEntity, CKRecord?, Error?) -> ())? = nil) -> CKRecord! {
+                                 completionHandler: ((ZKEntity, CKRecord?, Error?) -> ())? = nil) -> CKRecord! {
         
         if !preventReferenceCycle && isSyncLocked {
             syncPending = true
@@ -640,14 +655,12 @@ internal var syncPending = false
             let syncIdKey = type(of:entity).securedSyncKey,
             let changeDateKey = type(of:entity).securedChangeDateKey,
             let dispatch_queue = self.queues.first(where: { $0.label == "cloudkitframework.entity.queue.\((type(of:entity).self).recordType)" }),
-            self.delegate.entityDidSaveToCloudCallback != nil
+            self.delegate.zenEntityDidSaveToCloud != nil
             
             else {
                 if self.debugMode { print("[CK SAVE OPERATION FAILURE] Entity \(NSStringFromClass(type(of:entity))) and/or CKController has not been properly initialized!") }
                 return nil
         }
-        
-        let updatedChangeDate = Date()
         
         let syncId = kvcEntity.value(forKey: syncIdKey) as? String ?? ""
         
@@ -656,160 +669,154 @@ internal var syncPending = false
             return nil
         }
         
-        var existingRecord: CKRecord!
-        let mainSemaphore = DispatchSemaphore(value: 0)
+        let updatedChangeDate = Date()
+        var record: CKRecord!
         
-        dispatch_queue.async(flags: .barrier, execute: { [unowned self] in
+
+        // Run save operation synchronuously and serially.
+        // This is in order to avoid save of the same object to overlap.
+        dispatch_queue.sync(flags: .barrier, execute: { [unowned self] in
             
-            // Sub-func, used as starting point: checks if there's already an object over at CK.
-            // If it's there, grabs its reference and performs save operation.
-            func checkRecord() {
-                
-                if syncId != "" {
-                    
-                    let sema = DispatchSemaphore(value: 0)
-                    
-                    let recordId = CKRecordID.init(recordName: syncId)
-                    let operation = CKFetchRecordsOperation.init(recordIDs: [recordId])
-                    
-                    operation.queuePriority = .high
-                    operation.qualityOfService = .userInitiated
-                    operation.perRecordCompletionBlock = { record, recordId, error in
-                        existingRecord = record
-                        
-                        // Successfully fetched record
-                        if existingRecord != nil {
-                            saveRecord(record!)
-                        }
-                        else {
-                            existingRecord = CKRecord.init(recordType: type(of:entity).recordType)
-                            saveRecord(existingRecord!)
-                        }
-                        
-                        sema.signal()
-                        
-                    }
-                    self.database.add(operation)
-                    
-                    _ = sema.wait(timeout: DispatchTime.distantFuture)
-                    
-                } else {
-                    existingRecord = CKRecord.init(recordType: type(of:entity).recordType)
-                    saveRecord(existingRecord)
-                }
-                
-                mainSemaphore.signal()
+            // Fetch record synchronuously
+            record = self.fetchRecord(syncId: syncId, ofType: type(of:entity).recordType)
+            record[changeDateKey] = updatedChangeDate as CKRecordValue?
+            
+            
+            // Fill properties
+            for (sourceKey, recordKey) in type(of:entity).mappingDictionary where specificKeys?.contains(sourceKey) ?? true {
+                record[recordKey] = kvcEntity.value(forKeyPath:sourceKey) as? CKRecordValue
             }
             
             
-            func saveRecord(_ record: CKRecord) {
-                
-                /* Properties */
-                for (sourceKey, recordKey) in type(of:entity).mappingDictionary where specificKeys?.contains(sourceKey) ?? true {
-                    record[recordKey] = kvcEntity.value(forKeyPath:sourceKey) as? CKRecordValue
+            // Optional/client-specific closure to execute before passing data over to CK/iCloud */
+            submitBlock?(record)
+            
+            
+            // Save single references
+            if !preventReferenceCycle, let refs = type(of:entity).references {
+                for (localKey, referenceKey) in refs where specificKeys?.contains(localKey) ?? true {
+                    if let referenceObject = kvcEntity.value(forKey: localKey) as? ZKEntity {
+                        if let referenceRecord = self.saveRecordSync(entity: referenceObject, preventReferenceCycle: true, submitBlock:
+                            { underlyingRecord in
+                                if type(of:referenceObject).isWeak ?? false {
+                                    underlyingRecord[type(of:entity).recordType.lowercased()] = CKReference.init(record: record, action: .deleteSelf)
+                                }
+                        })
+                        {
+                            record[referenceKey] = CKReference.init(record: referenceRecord, action: .none)
+                        }
+                    }
                 }
-                
-                record[changeDateKey] = updatedChangeDate as CKRecordValue?
-                
-                /* Optional/client-specific closure to execute before passing data over to CK/iCloud */
-                submitBlock?(record)
-                
-                /* Single References */
-                if !preventReferenceCycle, let refs = type(of:entity).references {
-                    for (localKey, referenceKey) in refs where specificKeys?.contains(localKey) ?? true {
-                        if let referenceObject = kvcEntity.value(forKey: localKey) as? CKEntity {
-                            if let referenceRecord = self.saveRecordSync(entity: referenceObject, preventReferenceCycle: true, submitBlock:
+            }
+            
+            
+            // Save reference lists
+            if !preventReferenceCycle, let refLists = type(of:entity).referenceLists {
+                for (refListLocalKey, refListRemoteKey) in refLists.map({($0.localSource, $0.remoteKey)}) {
+                    
+                    let currentReferenceListKey = refListRemoteKey
+                    var currentReferrenceArray = [CKReference]()
+                    
+                    if let refCollection = kvcEntity.value(forKey: refListLocalKey!) as? Array<ZKEntity> {
+                        for referenceCollectionObject in refCollection {
+                            
+                            if let referenceRecord = self.saveRecordSync(
+                                entity: referenceCollectionObject,
+                                preventReferenceCycle: true,
+                                submitBlock:
                                 { underlyingRecord in
-                                    if type(of:referenceObject).isWeak ?? false {
+                                    if type(of:referenceCollectionObject).isWeak ?? false {
                                         underlyingRecord[type(of:entity).recordType.lowercased()] = CKReference.init(record: record, action: .deleteSelf)
                                     }
-                                })
+                            })
                             {
-                                record[referenceKey] = CKReference.init(record: referenceRecord, action: .none)
+                                currentReferrenceArray.append(CKReference.init(record: referenceRecord, action: .none))
                             }
                         }
+                        
+                        record[currentReferenceListKey!] = currentReferrenceArray as CKRecordValue?
+                        
                     }
                 }
-                
-                /* Reference lists */
-                if !preventReferenceCycle, let refLists = type(of:entity).referenceLists {
-                    for (refListLocalKey, refListRemoteKey) in refLists.map({($0.localSource, $0.remoteKey)}) {
-                        
-                        let currentReferenceListKey = refListRemoteKey
-                        var currentReferrenceArray = [CKReference]()
-                        
-                        if let refCollection = kvcEntity.value(forKey: refListLocalKey!) as? Array<CKEntity> {
-                            for referenceCollectionObject in refCollection {
-                                                                
-                                if let referenceRecord = self.saveRecordSync(
-                                    entity: referenceCollectionObject,
-                                    preventReferenceCycle: true,
-                                    submitBlock:
-                                    { underlyingRecord in
-                                        if type(of:referenceCollectionObject).isWeak ?? false {
-                                            underlyingRecord[type(of:entity).recordType.lowercased()] = CKReference.init(record: record, action: .deleteSelf)
-                                        }
-                                    })
-                                {
-                                    currentReferrenceArray.append(CKReference.init(record: referenceRecord, action: .none))
-                                }
-                            }
-                            
-                            record[currentReferenceListKey!] = currentReferrenceArray as CKRecordValue?
-                            
-                        }
-                    }
-                }
-                
-                let sema = DispatchSemaphore(value: 0)
-                let operation = CKModifyRecordsOperation.init(recordsToSave: [record], recordIDsToDelete: nil)
-                
-                operation.queuePriority = .high
-                operation.qualityOfService = .userInitiated
-                operation.perRecordCompletionBlock = { record, error in
-                    DispatchQueue.main.async {
-                        if error == nil {
-                            kvcEntity.setValue(record.recordID.recordName, forKeyPath: syncIdKey)
-                            kvcEntity.setValue(updatedChangeDate, forKeyPath: changeDateKey)
-                        }
-                        
-                        print(error != nil ? "[CK SAVE OPERATION] Error saving \(kvcEntity.className) to iCloud: \(String(describing: error))" : "[CK SAVE OPERATION] \(kvcEntity.className) saved to iCloud")
-                        
-                        completionHandler?(entity, record, error) ?? self.delegate.entityDidSaveToCloudCallback?(entity: entity, record: record, error: error)
-                    
-                        if updateLastSyncDate {
-                            
-                            let T = type(of:entity)
-                            
-                            UserDefaults.standard.set(Date(), forKey: T.lastSyncKey)
-                            UserDefaults.standard.synchronize()
-                        }
-                    }
-                    
-                    sema.signal()
-                }
-                
-                operation.completionBlock = {
-                    sema.signal()
-                }
-                self.database.add(operation)
-                
-                _ = sema.wait(timeout: .distantFuture)
-                
             }
             
-            checkRecord()
+            
+            // Save root object
+            let sema = DispatchSemaphore(value: 0)
+            let operation = CKModifyRecordsOperation.init(recordsToSave: [record], recordIDsToDelete: nil)
+            
+            operation.queuePriority = .high
+            operation.qualityOfService = .utility
+            operation.perRecordCompletionBlock = { record, error in
+                DispatchQueue.main.async {
+                    if error == nil {
+                        kvcEntity.setValue(record.recordID.recordName, forKeyPath: syncIdKey)
+                        kvcEntity.setValue(updatedChangeDate, forKeyPath: changeDateKey)
+                    }
+                    
+                    print(error != nil ? "[CK SAVE OPERATION] Error saving \(kvcEntity.className) to iCloud: \(String(describing: error))" : "[CK SAVE OPERATION] \(kvcEntity.className) saved to iCloud")
+                    
+                    completionHandler?(entity, record, error) ?? self.delegate.zenEntityDidSaveToCloud?(entity: entity, record: record, error: error)
+                    
+                    if updateLastSyncDate {
+                        
+                        let T = type(of:entity)
+                        
+                        UserDefaults.standard.set(Date(), forKey: T.lastSyncKey)
+                        UserDefaults.standard.synchronize()
+                    }
+                }
+                
+                sema.signal()
+            }
+            
+            operation.completionBlock = { sema.signal() }
+            
+            self.database.add(operation)
+            
+            _ = sema.wait(timeout: .distantFuture)
             
         })
         
-        _ = mainSemaphore.wait(timeout: .distantFuture)
-        
-        return existingRecord
+        return record
     }
+    
+    
+    private func fetchRecord(syncId: String, ofType type: String) -> CKRecord { //queueSemaphore: DispatchSemaphore) -> Bool {
+        
+        var requestedRecord: CKRecord!
+        
+        if syncId != "" {
+            
+            let sema = DispatchSemaphore(value: 0)
+            
+            let recordId = CKRecordID.init(recordName: syncId)
+            let operation = CKFetchRecordsOperation.init(recordIDs: [recordId])
+            
+            operation.queuePriority = .high
+            operation.qualityOfService = .utility
+            operation.perRecordCompletionBlock = { record, recordId, error in
+                
+                requestedRecord = record ?? CKRecord.init(recordType: type)
+                
+                sema.signal()
+                
+            }
+            self.database.add(operation)
+            
+            _ = sema.wait(timeout: DispatchTime.distantFuture)
+            
+        } else {
+            requestedRecord = CKRecord.init(recordType: type)
+        }
+        
+        return requestedRecord
+    }
+
 
     
     // Async wrapper
-    internal func saveRecordAsync(entity : CKEntity, updateLastSyncDate: Bool = false, submitBlock: ((CKRecord) -> ())? = nil) {
+    internal func saveRecordAsync(entity : ZKEntity, updateLastSyncDate: Bool = false, submitBlock: ((CKRecord) -> ())? = nil) {
         DispatchQueue.global(qos: .utility).async { [unowned self] in _ =
             self.saveRecordSync(entity: entity, submitBlock: submitBlock, updateLastSyncDate: updateLastSyncDate)
         }
@@ -843,7 +850,7 @@ internal var syncPending = false
                       fetchItemBySyncId : @escaping (T.Type, _ syncId: String)->T? = { _,_ in nil },
                       createItem : @escaping ()->T? = { nil },
                       forcedSync : Bool = false)
-                        where T: CKEntity, T: NSObjectProtocol
+                        where T: ZKEntity, T: NSObjectProtocol
     {
         if isSyncLocked {
             print("[CK SYNC FAILURE] Sync locked. Enable sync in the app to allow syncing")
@@ -867,7 +874,7 @@ internal var syncPending = false
         
         let lastSyncDate : Date! = forcedSync ? Date.distantPast : UserDefaults.standard.object(forKey: T.lastSyncKey) as? Date ?? Date.distantPast
         
-        var localEntities = (allEntities ?? (delegate.allEntities(ofType: T.self)! as! [T]))
+        var localEntities = (allEntities ?? (delegate.zenAllEntities(ofType: T.self)! as! [T]))
         
         if !forcedSync {
             localEntities = localEntities
@@ -901,7 +908,7 @@ internal var syncPending = false
                 
                 DispatchQueue.main.sync {
                     soughtEntity = fetchItemBySyncId(T.self, record.recordID.recordName) ??
-                        self.delegate.fetchEntityCallback(ofType: T.self, syncId: record.recordID.recordName) as? T
+                        self.delegate.zenFetchEntity(ofType: T.self, syncId: record.recordID.recordName) as? T
                 }
                 
                 
@@ -937,7 +944,7 @@ internal var syncPending = false
                 }
                 
                 
-                self.delegate.syncDidFinish(for:  T.self,
+                self.delegate.zenSyncDidFinish(for:  T.self,
                                             newRecords: entitiesToCreate, updatedRecords: entitiesToUpdate, deletedRecords: [],
                                             finishSync: {
                                                 UserDefaults.standard.set(Date(), forKey: T.lastSyncKey)
@@ -973,7 +980,7 @@ internal var syncPending = false
      */
     
     
-    internal func fetchReferences(_ entity: CKEntity, fromRemote record: CKRecord)  {
+    internal func fetchReferences(_ entity: ZKEntity, fromRemote record: CKRecord)  {
         
         guard
             let kvcEntity = entity as? NSObject,
@@ -991,25 +998,26 @@ internal var syncPending = false
         let sema = DispatchSemaphore(value: refs != nil ? refs!.count-1 : refLists!.count-1)
         
         
-        func setPlaceholderForMissingReference(byKey localKey: String, ofType T: CKEntity.Type) {
-            performBlockOnMainThread {
+        func setPlaceholderForMissingReference(byKey localKey: String, ofType T: ZKEntity.Type) {
+            performOnMainThread {
                 kvcEntity.setValue( T.referencePlaceholder, forKey: localKey)
-                self.delegate.entityDidSaveToCloudCallback!(entity: entity, record: nil, error: nil)
+                self.delegate.zenEntityDidSaveToCloud!(entity: entity, record: nil, error: nil)
             }
         }
         
-        DispatchQueue.global(qos: .userInitiated).async {
-            dispatch_queue.async(flags: .barrier, execute: {
+        // Let the function reach its end by launching block asynchronuously
+        background_queue.async {
+            
+            // Run serially (block queue) so as to avoid same object getting here too quickly
+            dispatch_queue.async(flags: .barrier, execute: { [unowned self] in
                 
                 if let refs = refs {
                     
                     let refSema = DispatchSemaphore(value: refs.count-1)
                     
-                    var enumeration = 0
-                    
                     for (localKey, referenceKey) in refs {
                         
-                        if let className = entity.getTypeOfProperty(name: localKey), let __class = NSClassFromString(className) as? CKEntity.Type {
+                        if let className = entity.getTypeOfProperty(name: localKey), let __class = NSClassFromString(className) as? ZKEntity.Type {
                             
                             guard let reference = record[referenceKey] as? CKReference else {
                                 refSema.signal()
@@ -1028,7 +1036,7 @@ internal var syncPending = false
                                     
                                     DispatchQueue.main.async {
                                         
-                                        var refEntity : CKEntity! = self.delegate.fetchEntityCallback(ofType: __class, syncId: record.recordID.recordName)
+                                        var refEntity : ZKEntity! = self.delegate.zenFetchEntity(ofType: __class, syncId: record.recordID.recordName)
                                         
                                         if refEntity != nil {
                                             let refEntityChangeDate = (refEntity as! NSObject).value(forKey: __class.securedChangeDateKey!) as? Date ?? Date.distantPast
@@ -1041,19 +1049,15 @@ internal var syncPending = false
                                             kvcEntity.setValue(refEntity, forKey: localKey)
                                         } else {
                                             
-                                            refEntity = self.delegate.createEntityCallback(ofType: __class)
+                                            refEntity = self.delegate.zenCreateEntity(ofType: __class)
                                             self.updateEntity(refEntity, fromRemote: record)
                                             
                                             kvcEntity.setValue(refEntity, forKey: localKey)
                                         }
                                         
-                                        // self.delegate.entityDidSaveToCloudCallback!(entity: entity, record: record, error: error)
-                                        self.delegate.syncDidFinish(for: __class, newRecords: [], updatedRecords: [], deletedRecords: [], finishSync: {})
+                                        // self.delegate.zenEntityDidSaveToCloud!(entity: entity, record: record, error: error)
+                                        self.delegate.zenSyncDidFinish(for: __class, newRecords: [], updatedRecords: [], deletedRecords: [], finishSync: {})
                                         
-                                        enumeration += 1
-                                        if refs.count == enumeration {
-                                            self.delegate.syncDidFinish(for: __class, newRecords: [], updatedRecords: [], deletedRecords: [], finishSync: {})
-                                        }
                                     }
                                     
                                     
@@ -1068,7 +1072,6 @@ internal var syncPending = false
                             self.database.add(operation)
                         } else {
                             refSema.signal()
-                            enumeration += 1
                         }
                         
                     }
@@ -1083,7 +1086,6 @@ internal var syncPending = false
                     
                     for (localSource, entityType, referenceListKey) in refLists.map({
                         ($0.localSource, $0.entityType, $0.remoteKey)}) {
-                            
                             
                             guard let referenceList = record[referenceListKey!] as? [CKReference] else {
                                 refSema.signal()
@@ -1101,7 +1103,7 @@ internal var syncPending = false
                                 if error == nil, let record = record {
                                     DispatchQueue.main.sync {
                                         
-                                        var refEntity : CKEntity! = self.delegate.fetchEntityCallback(ofType: entityType!, syncId: record.recordID.recordName)
+                                        var refEntity : ZKEntity! = self.delegate.zenFetchEntity(ofType: entityType!, syncId: record.recordID.recordName)
                                         
                                         if refEntity != nil {
                                             let refEntityChangeDate = (refEntity as! NSObject).value(forKey: entityType!.securedChangeDateKey!) as? Date ?? Date.distantPast
@@ -1115,11 +1117,11 @@ internal var syncPending = false
                                             collectionOfReferenceObjects.append(refEntity)
                                         } else {
                                             
-                                            refEntity = self.delegate.createEntityCallback(ofType: entityType!)
+                                            refEntity = self.delegate.zenCreateEntity(ofType: entityType!)
                                             self.updateEntity(refEntity, fromRemote: record)
                                         }
                                         
-                                        self.delegate.entityDidSaveToCloudCallback!(entity: entity, record: record, error: error)
+                                        self.delegate.zenEntityDidSaveToCloud!(entity: entity, record: record, error: error)
                                         
                                     }
                                 }
@@ -1136,9 +1138,14 @@ internal var syncPending = false
                             self.database.add(operation)
                             
                     }
+                    
+                // refLists ended parsing
                 }
+                
+            // entity_queue ends
             })
             
+        // background_queue ends
         }
     }
     
@@ -1157,9 +1164,9 @@ internal var syncPending = false
     */
 
     
-    /// Run full sync cycle by calling this function and passing CKEntity class.
+    /// Run full sync cycle by calling this function and passing ZKEntity class.
     ///
-    @objc public func syncEntities(specific : [CKEntity.Type]! = nil, forced: Bool = false) {
+    @objc public func syncEntities(specific : [ZKEntity.Type]! = nil, forced: Bool = false) {
         guard
             cloudKitInstance != nil,
             cloudKitInstance.container != nil,
@@ -1178,21 +1185,21 @@ internal var syncPending = false
     
     /// func updateEntity(...)
     ///
-    /// This function should be called from within syncDidFinish delegate function
+    /// This function should be called from within zenSyncDidFinish delegate function
     /// to automatically transfer remote values to its respective local fields.
     /// You are free to specify whether or not you want to automatically handle
     /// references by creating respective local objects, which is done by
-    /// specifying fetchReferences flag to true. Once set, CKFramework automatically
-    /// fetches these objects and assigns them to corresponding root CKEntity fields.
+    /// specifying fetchReferences flag to true. Once set, ZenCloudKit automatically
+    /// fetches these objects and assigns them to corresponding root ZKEntity fields.
     ///
     
-    @objc public func updateEntity(_ entity: CKEntity, fromRemote record: CKRecord, fetchReferences fetch: Bool = false) {
+    @objc public func updateEntity(_ entity: ZKEntity, fromRemote record: CKRecord, fetchReferences fetch: Bool = false) {
         
         guard
             let kvcEntity = entity as? NSObject,
             let changeDateKey = self.changeDateKey ?? type(of:entity).changeDateKey else { return }
         
-        performBlockOnMainThread {
+        performOnMainThread {
             
             for (localKey, remoteKey) in type(of: entity).mappingDictionary {
                 if record[remoteKey] != nil { kvcEntity.setValue(record[remoteKey], forKey: localKey) }
@@ -1201,7 +1208,7 @@ internal var syncPending = false
             kvcEntity.setValue(record.recordID.recordName, forKey: type(of:entity).securedSyncKey)
             kvcEntity.setValue(record[changeDateKey], forKey: changeDateKey)
             
-            self.delegate?.entityDidSaveToCloudCallback?(entity: entity, record: record, error: nil)
+            self.delegate?.zenEntityDidSaveToCloud?(entity: entity, record: record, error: nil)
             
             if fetch { cloudKitInstance.fetchReferences(entity, fromRemote: record) }
         }
@@ -1209,13 +1216,13 @@ internal var syncPending = false
     }
     
     
-    /// Run full sync cycle by calling this function and passing CKEntity class.
+    /// Run full sync cycle by calling this function and passing ZKEntity class.
     ///
-    @objc public func iCloudSyncEntities(ofType type: CKEntity.Type) {
+    @objc public func iCloudSyncEntities(ofType type: ZKEntity.Type) {
         type.syncEntities()
     }
     
-    @objc public func iCloudForcedSyncEntities(ofType type: CKEntity.Type) {
+    @objc public func iCloudForcedSyncEntities(ofType type: ZKEntity.Type) {
         type.syncEntities(forced: true)
     }
     
@@ -1223,7 +1230,7 @@ internal var syncPending = false
     
 // MARK: - PUBLIC - Delete functions
     
-    @objc public func iCloudDelete(_ entity: CKEntity) {
+    @objc public func iCloudDelete(_ entity: ZKEntity) {
         
         if isSyncLocked {
             print("[CK SYNC FAILURE] Sync locked. Enable sync in the app to allow syncing")
@@ -1254,7 +1261,7 @@ internal var syncPending = false
         
         var operation = CKModifyRecordsOperation.init(recordsToSave: nil, recordIDsToDelete: [recordId])
         
-        operation.queuePriority = .veryHigh
+        operation.queuePriority = .high
         operation.qualityOfService = .userInitiated
         operation.modifyRecordsCompletionBlock = { savedRecords, deletedRecordIDs, error in
             if self.debugMode { print(error != nil ?
@@ -1303,22 +1310,22 @@ internal var syncPending = false
     
 // MARK: - PUBLIC - Save functions
     
-    @objc public func iCloudSaveKeys (_ entity: CKEntity, keys: [String]) {
+    @objc public func iCloudSaveKeys (_ entity: ZKEntity, keys: [String]) {
         DispatchQueue.global().async { [unowned self] in _ =
             self.saveRecordSync(entity: entity, preventReferenceCycle: false, specificKeys: keys, submitBlock: nil, completionHandler: nil)
         }
     }
     
-    @objc public func iCloudSaveKeysAndWait (_ entity: CKEntity, keys: [String]) {
+    @objc public func iCloudSaveKeysAndWait (_ entity: ZKEntity, keys: [String]) {
         saveRecordSync(entity: entity, preventReferenceCycle: false, specificKeys: keys, submitBlock: nil, completionHandler: nil)
     }
     
     
-    @objc public func iCloudSave(_ entity: CKEntity!) {
+    @objc public func iCloudSave(_ entity: ZKEntity!) {
         saveRecordAsync(entity: entity)
     }
     
-    @objc public func iCloudSaveAndWait(_ entity: CKEntity!) {
+    @objc public func iCloudSaveAndWait(_ entity: ZKEntity!) {
         saveRecordSync(entity: entity)
     }
     
@@ -1340,7 +1347,7 @@ internal var syncPending = false
             cloudKitInstance.container != nil,
             cloudKitInstance.delegate != nil
             else {
-                print("[CK SYNC] FAILED TO HANDLE PUSH NOTIFICATION: CKFramework has not been properly initialized!")
+                print("[CK SYNC] FAILED TO HANDLE PUSH NOTIFICATION: ZenCloudKit has not been properly initialized!")
                 return
         }
         
@@ -1366,7 +1373,7 @@ internal var syncPending = false
                             let recordType = record[CKDeleteQueueKeys.recordType] as? String,
                             let T = self.entities.first(where: { $0.recordType == recordType }) {
                         
-                            self.delegate.syncDidFinish(for: T.self, newRecords: [], updatedRecords: [], deletedRecords: [CKDeleteInfo.init(entityType: T.self, syncId: record[CKDeleteQueueKeys.recordId] as! String)], finishSync: {
+                            self.delegate.zenSyncDidFinish(for: T.self, newRecords: [], updatedRecords: [], deletedRecords: [ZKDeleteInfo.init(entityType: T.self, syncId: record[CKDeleteQueueKeys.recordId] as! String)], finishSync: {
                                 self.database.delete(withRecordID: record.recordID, completionHandler: { (record, error) in })
                             })
                             
@@ -1381,10 +1388,10 @@ internal var syncPending = false
                         switch notification.queryNotificationReason {
                             
                         case .recordCreated:
-                            self.delegate.syncDidFinish(for: T, newRecords: [record], updatedRecords: [], deletedRecords: [], finishSync: {})
+                            self.delegate.zenSyncDidFinish(for: T, newRecords: [record], updatedRecords: [], deletedRecords: [], finishSync: {})
                             
                         case .recordUpdated:
-                            self.delegate.syncDidFinish(for: T, newRecords: [], updatedRecords: [record], deletedRecords: [], finishSync: {})
+                            self.delegate.zenSyncDidFinish(for: T, newRecords: [], updatedRecords: [record], deletedRecords: [], finishSync: {})
                             
                         default: break
                             
